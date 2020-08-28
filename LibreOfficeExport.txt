@@ -1,0 +1,75 @@
+Sub Export_1280_720
+
+'In Libreoffice open the  menus
+'tools -> macros -> oragnize macros
+'In mymacros -> standard -> module1
+'pase this code under the Sub Main
+	
+	Dim oDoc
+	Dim oSlideList
+	Dim lastPageNumber
+	Dim exportPath' = "/home/rootshell/Pictures/"
+	Dim exportName' = "slide"
+	Dim aArgs (2) as new com.sun.star.beans.PropertyValue
+	Dim xExporter
+	
+	Dim aFilterData (7) as new com.sun.star.beans.PropertyValue
+		
+		aFilterData(0).Name = "PixelWidth"
+		aFilterData(0).Value = 1280
+		
+		aFilterData(1).Name = "PixelHeight"
+		aFilterData(1).Value = 720 
+		
+		aFilterData(2).Name ="Compression"
+		aFilterData(2).Value = 6
+		
+		aFilterData(3).Name ="ColorMode"
+		aFilterData(3).Value = 0' Color;
+		
+		aFilterData(4).Name ="Resolution"
+		aFilterData(4).Value = 37
+		
+		aFilterData(5).Name ="RLE_Coding"
+		aFilterData(5).Value = false
+		
+		'aFilterData(6).Name ="LogicalWidth"
+		'aFilterData(6).Value = 1280
+		
+		'aFilterData(7).Name ="LogicalHeight"
+		'aFilterData(7).Value = 720
+	
+	
+	exportPath = InputBox("Please enter the path to save the images","Export as 1280x720","/home/rootshell/Pictures/") '"/home/rootshell/Pictures/"
+	IF exportPath = "" THEN EXIT SUB
+	exportName = "slide"
+
+	xExporter = createUnoService("com.sun.star.drawing.GraphicExportFilter")
+	
+	oDoc = ThisComponent
+	oSlideList = oDoc.getDrawPages()
+	lastPageNumber = oSlideList.count()
+	
+	IF lastPageNumber <= 0 THEN EXIT SUB
+	
+	print("This might take a moment, please wait while we export to: " + exportPath)
+	
+	FOR i = 0 TO lastPageNumber - 1
+		Dim oShape
+		oShape = oDoc.drawpages(i)
+
+		sFileUrl = ConvertToURL( exportPath + exportName  + i + ".png")
+		aArgs(0).Name = "MediaType"
+		aArgs(0).Value = "image/png" 'image/gif , image/jpeg ... see http://www.oooforum.org/forum/viewtopic.phtml?t=51021
+		aArgs(1).Name = "URL"
+		aArgs(1).Value = sFileUrl
+		aArgs(2).Name = "FilterData"
+		aArgs(2).Value = aFilterData()
+		
+		xExporter.setSourceDocument( oShape )
+		xExporter.filter( aArgs() )
+	NEXT i
+	
+	print("Complete")
+
+End Sub
